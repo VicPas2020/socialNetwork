@@ -8,16 +8,16 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 @Setter
+@Cacheable
 @Entity
 @Table(name = "usr")
 @SQLDelete(sql = "UPDATE usr SET is_deleted = true WHERE id=?")
 @Where(clause = "is_deleted=false")
+@NamedEntityGraph(name = "User.subscribes", attributeNodes = @NamedAttributeNode("subscribes"))
 public class User extends SoftDelete implements GenericEntity<User> {
 
     @Id
@@ -38,14 +38,15 @@ public class User extends SoftDelete implements GenericEntity<User> {
             CascadeType.MERGE
     })
     @JoinTable(name = "usr_subscribes",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "subscribe_id"))
-    private List<Subscribe> subscribes = new ArrayList<>();
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "subscribe_id", referencedColumnName = "id"))
+    private Set<Subscribe> subscribes = new HashSet<>();
 
     @Override
     public void update(User source) {
         this.firstName = source.getFirstName();
         this.lastName = source.getLastName();
+        this.subscribes = source.subscribes;
     }
 
     @Override
@@ -58,11 +59,24 @@ public class User extends SoftDelete implements GenericEntity<User> {
 
     public void addSubscribe(Subscribe subscribe) {
         subscribes.add(subscribe);
-        subscribe.getUsers().add(this);
     }
 
     public void removeSubscribe(Subscribe subscribe) {
         subscribes.remove(subscribe);
-        subscribe.getUsers().remove(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

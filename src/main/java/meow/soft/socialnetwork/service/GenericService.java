@@ -1,5 +1,6 @@
 package meow.soft.socialnetwork.service;
 
+import meow.soft.socialnetwork.exceptions.NotFoundException;
 import meow.soft.socialnetwork.model.GenericEntity;
 import meow.soft.socialnetwork.repo.GenericRepository;
 import org.springframework.data.domain.Page;
@@ -21,15 +22,16 @@ public abstract class GenericService<T extends GenericEntity<T>> {
     }
 
     public T get(UUID id) {
-        return repository.findById(id).get();
+        return repository.findById(id).orElseThrow(() ->
+                new NotFoundException(String.format("Object with id %s not found", id)));
     }
 
     @Transactional
     public T update(T updated) {
-        T dbDomain = get(updated.getId());
-        dbDomain.update(updated);
+//        T dbDomain = get(updated.getId());
+//        dbDomain.update(updated);
 
-        return repository.save(dbDomain);
+        return repository.save(updated);
     }
 
     @Transactional

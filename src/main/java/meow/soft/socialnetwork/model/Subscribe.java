@@ -51,4 +51,19 @@ public class Subscribe extends SoftDelete implements GenericEntity<Subscribe> {
 
         return newSubscribe;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Subscribe subscribe = (Subscribe) o;
+
+        return id.equals(subscribe.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
