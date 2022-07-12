@@ -1,5 +1,6 @@
 package meow.soft.socialnetwork.service;
 
+import lombok.extern.slf4j.Slf4j;
 import meow.soft.socialnetwork.exceptions.CommonException;
 import meow.soft.socialnetwork.model.Subscribe;
 import meow.soft.socialnetwork.model.User;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class UserService extends GenericService<User> {
     @Autowired
     private SubscribeService subscribeService;
@@ -26,6 +28,7 @@ public class UserService extends GenericService<User> {
         Subscribe subscribe = subscribeService.get(subscribeID);
         user.addSubscribe(subscribe);
         update(user);
+        log.debug("Subscribe with id {} add to user {}", subscribeID, userId);
     }
 
     public void removeSubscribe(UUID userId, UUID subscribeID) {
@@ -35,6 +38,8 @@ public class UserService extends GenericService<User> {
 
             user.removeSubscribe(subscribe);
             update(user);
+
+            log.debug("Subscribe with id {} removed from user {}", subscribeID, userId);
         }
     }
 }

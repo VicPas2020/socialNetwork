@@ -1,5 +1,6 @@
 package meow.soft.socialnetwork.service;
 
+import lombok.extern.slf4j.Slf4j;
 import meow.soft.socialnetwork.exceptions.NotFoundException;
 import meow.soft.socialnetwork.model.GenericEntity;
 import meow.soft.socialnetwork.repo.GenericRepository;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+@Slf4j
 public abstract class GenericService<T extends GenericEntity<T>> {
 
     private final GenericRepository<T> repository;
@@ -28,22 +30,27 @@ public abstract class GenericService<T extends GenericEntity<T>> {
 
     @Transactional
     public T update(T updated) {
-//        T dbDomain = get(updated.getId());
-//        dbDomain.update(updated);
-
-        return repository.save(updated);
+        T dbDomain = get(updated.getId());
+        dbDomain.update(updated);
+        T save = repository.save(dbDomain);
+        log.debug("Object {} with id {} updated", save.getClass().getName(), save.getId());
+        return save;
     }
 
     @Transactional
     public T create(T newDomain) {
         T dbDomain = newDomain.createNewInstance();
-        return repository.save(dbDomain);
+        T save = repository.save(dbDomain);
+        log.debug("Object {} with id {} created", save.getClass().getName(), save.getId());
+        return save;
     }
 
     @Transactional
     public void delete(UUID id) {
         //check if object with this id exists
-        get(id);
+        T domObj = get(id);
         repository.deleteById(id);
+
+        log.debug("Object {} with id {} mark as deleted", domObj.getClass().getName(), id);
     }
 }
