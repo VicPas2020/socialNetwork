@@ -1,10 +1,12 @@
 package meow.soft.socialnetwork.model;
 
+import java.util.UUID;
+
 public interface GenericEntity<T> {
 
     void update(T source);
 
-    Long getId();
+    UUID getId();
 
     T createNewInstance();
 }

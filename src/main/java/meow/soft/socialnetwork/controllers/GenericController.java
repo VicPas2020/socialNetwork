@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 public abstract class GenericController<T extends GenericEntity<T>> {
 
     private final GenericService<T> service;
@@ -23,7 +25,7 @@ public abstract class GenericController<T extends GenericEntity<T>> {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<T> getOne(@PathVariable Long id){
+    public ResponseEntity<T> getOne(@PathVariable UUID id){
         return ResponseEntity.ok(service.get(id));
     }
 
@@ -38,7 +40,7 @@ public abstract class GenericController<T extends GenericEntity<T>> {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id){
+    public ResponseEntity<String> delete(@PathVariable UUID id){
         service.delete(id);
         return ResponseEntity.ok("Ok");
     }
