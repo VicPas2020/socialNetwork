@@ -3,6 +3,7 @@ package meow.soft.socialnetwork.model;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -19,9 +20,13 @@ import java.util.UUID;
 @Where(clause = "is_deleted=false")
 public class User extends SoftDelete implements GenericEntity<User> {
 
-    @Setter(AccessLevel.NONE)
     @Id
-    @Column(name = "id", nullable = false)
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
     private String firstName;

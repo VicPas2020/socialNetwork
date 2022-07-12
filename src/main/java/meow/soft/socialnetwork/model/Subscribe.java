@@ -1,8 +1,9 @@
 package meow.soft.socialnetwork.model;
 
-import lombok.AccessLevel;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -18,15 +19,21 @@ import java.util.UUID;
 @SQLDelete(sql = "UPDATE subscribe SET is_deleted = true WHERE id=?")
 @Where(clause = "is_deleted=false")
 public class Subscribe extends SoftDelete implements GenericEntity<Subscribe> {
+
     @Id
-    @Setter(AccessLevel.NONE)
-    @Column(name = "id", nullable = false)
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
     private String title;
 
     private String description;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "subscribes")
     private Set<User> users = new HashSet<>();
 
@@ -34,6 +41,7 @@ public class Subscribe extends SoftDelete implements GenericEntity<Subscribe> {
     public void update(Subscribe source) {
         this.description = source.getDescription();
         this.title = source.getTitle();
+        this.users = source.getUsers();
     }
 
     @Override
