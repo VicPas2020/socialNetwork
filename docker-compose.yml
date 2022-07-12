@@ -1,0 +1,19 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:latest
+    ports:
+      - "5431:5432"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "social_network"
+  back:
+    image: social_network:1
+    build: .
+    environment:
+      - spring.datasource.url=jdbc:postgresql://db:5432/social_network
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
