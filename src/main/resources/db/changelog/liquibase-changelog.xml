@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="1" author="ybogdanov">
+        <createTable tableName="subscriptions">
+            <column name="parent" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="child" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="subscriptions" columnNames="parent,child" constraintName="pk_subscriptions"/>
+    </changeSet>
+
+    <changeSet id="2" author="ybogdanov">
+        <createTable tableName="usr">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="first_name" type="varchar(255)"/>
+            <column name="last_name" type="varchar(255)"/>
+            <column name="patronymic" type="varchar(255)"/>
+            <column name="sex" type="varchar(10)"/>
+            <column name="birth_date" type="date"/>
+            <column name="city" type="varchar(255)"/>
+            <column name="photo_url" type="varchar(255)"/>
+            <column name="about" type="varchar(255)"/>
+            <column name="nick_name" type="varchar(255)"/>
+            <column name="skills" type="varchar(255)"/>
+            <column name="mail" type="varchar(255)"/>
+            <column name="phone" type="varchar(255)"/>
+            <column name="is_deleted" type="boolean"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="3" author="ybogdanov">
+        <addForeignKeyConstraint baseTableName="subscriptions" baseColumnNames="child" constraintName="fk_sub_on_child"
+                                 referencedTableName="usr"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="subscriptions" baseColumnNames="parent"
+                                 constraintName="fk_sub_on_parent"
+                                 referencedTableName="usr"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+</databaseChangeLog>

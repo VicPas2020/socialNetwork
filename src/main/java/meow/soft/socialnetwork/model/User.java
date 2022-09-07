@@ -1,14 +1,19 @@
 package meow.soft.socialnetwork.model;
 
-import lombok.AccessLevel;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.springframework.beans.BeanUtils;
 
 import javax.persistence.*;
-import java.util.*;
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -16,9 +21,9 @@ import java.util.*;
 @Entity
 @Table(name = "usr")
 @SQLDelete(sql = "UPDATE usr SET is_deleted = true WHERE id=?")
+@NamedEntityGraph(name = "User.subscribers", attributeNodes = @NamedAttributeNode("subscribers"))
 @Where(clause = "is_deleted=false")
-@NamedEntityGraph(name = "User.subscribes", attributeNodes = @NamedAttributeNode("subscribes"))
-public class User extends SoftDelete implements GenericEntity<User> {
+public class User extends SoftDelete {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -30,26 +35,41 @@ public class User extends SoftDelete implements GenericEntity<User> {
     private UUID id;
 
     private String firstName;
-
     private String lastName;
 
-    @ManyToMany(cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE
-    })
-    @JoinTable(name = "usr_subscribes",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "subscribe_id", referencedColumnName = "id"))
-    private Set<Subscribe> subscribes = new HashSet<>();
+    private String patronymic;
 
-    @Override
+    private String sex;
+
+    private LocalDate birthDate;
+
+    private String city;
+
+    private String photoUrl;
+
+    private String about;
+
+    private String nickName;
+
+    private String skills;
+
+    private String mail;
+
+    private String phone;
+    @OneToMany
+    @JoinTable(name = "subscriptions",
+            joinColumns = {@JoinColumn(name = "parent")},
+            inverseJoinColumns = {@JoinColumn(name = "child")}
+    )
+    @JsonIgnore
+    private Set<User> subscribers = new HashSet<>();
+
+
     public void update(User source) {
-        this.firstName = source.getFirstName();
-        this.lastName = source.getLastName();
-        this.subscribes = source.subscribes;
+        BeanUtils.copyProperties(source, this);
+
     }
 
-    @Override
     public User createNewInstance() {
         User newUser = new User();
         newUser.update(this);
@@ -57,12 +77,12 @@ public class User extends SoftDelete implements GenericEntity<User> {
         return newUser;
     }
 
-    public void addSubscribe(Subscribe subscribe) {
-        subscribes.add(subscribe);
+    public void addSubscriber(User user) {
+        subscribers.add(user);
     }
 
-    public void removeSubscribe(Subscribe subscribe) {
-        subscribes.remove(subscribe);
+    public void removeSubscriber(User user) {
+        subscribers.remove(user);
     }
 
     @Override
