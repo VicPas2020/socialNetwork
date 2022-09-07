@@ -65,6 +65,7 @@ public class UserService {
     public void delete(UUID id) {
         //check if object with this id exists
         get(id);
+        userRepository.cleanSubscribers(id);
         userRepository.deleteById(id);
     }
 
