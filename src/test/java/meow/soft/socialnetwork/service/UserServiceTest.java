@@ -1,5 +1,6 @@
 package meow.soft.socialnetwork.service;
 
+import meow.soft.socialnetwork.exceptions.NotFoundException;
 import meow.soft.socialnetwork.model.User;
 import meow.soft.socialnetwork.repo.UserRepository;
 import org.junit.jupiter.api.Assertions;
@@ -11,6 +12,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -84,5 +86,11 @@ class UserServiceTest {
 
         Page<User> result = userService.getPage(null);
         Assertions.assertEquals(null, result);
+    }
+
+    @Test
+    void testNotFound() {
+        NotFoundException notFoundException = Assertions.assertThrows(NotFoundException.class, () -> userService.get(null));
+        Assertions.assertEquals("User not found", notFoundException.getMessage());
     }
 }
