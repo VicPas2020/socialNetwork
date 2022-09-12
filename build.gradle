@@ -19,6 +19,10 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    set('testcontainersVersion', "1.17.3")
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -28,11 +32,20 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'
-    liquibaseRuntime 'org.liquibase:liquibase-core:4.8.0'
+    liquibaseRuntime 'org.liquibase:liquibase-core:4.15.0'
     liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:3.0.2'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:postgresql'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.testcontainers:testcontainers-bom:${testcontainersVersion}"
+    }
 }
 
 tasks.named('test') {

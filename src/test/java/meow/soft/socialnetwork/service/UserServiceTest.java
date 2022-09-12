@@ -91,6 +91,6 @@ class UserServiceTest {
     @Test
     void testNotFound() {
         NotFoundException notFoundException = Assertions.assertThrows(NotFoundException.class, () -> userService.get(null));
-        Assertions.assertEquals("User not found", notFoundException.getMessage());
+        Assertions.assertEquals("User null not found", notFoundException.getMessage());
     }
 }

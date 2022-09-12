@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import meow.soft.socialnetwork.exceptions.CommonException;
+import meow.soft.socialnetwork.exceptions.NotFoundException;
 import meow.soft.socialnetwork.model.User;
 import meow.soft.socialnetwork.service.UserService;
 import org.springframework.data.domain.Page;
@@ -27,7 +29,15 @@ public class UserController {
         if (userId.equals(subscribeId))
             return ResponseEntity.ok("subscribe added");
 
-        userService.addSubscriber(UUID.fromString(userId), UUID.fromString(subscribeId));
+        try {
+            userService.addSubscriber(UUID.fromString(userId), UUID.fromString(subscribeId));
+        }
+        catch (NotFoundException notFoundException) {
+            return ResponseEntity.status(404).body(notFoundException.getMessage());
+        }
+        catch (CommonException commonException) {
+            return ResponseEntity.status(500).body(commonException.getMessage());
+        }
 
         return ResponseEntity.ok("subscribe added");
     }
@@ -35,7 +45,15 @@ public class UserController {
     @PostMapping("/removeSubscribe")
     public ResponseEntity<String> removeSubscribe(String userId, String subscribeId) {
 
-        userService.removeSubscriber(UUID.fromString(userId), UUID.fromString(subscribeId));
+        try {
+            userService.removeSubscriber(UUID.fromString(userId), UUID.fromString(subscribeId));
+        }
+        catch (NotFoundException notFoundException) {
+            return ResponseEntity.status(404).body(notFoundException.getMessage());
+        }
+        catch (CommonException commonException) {
+            return ResponseEntity.status(500).body(commonException.getMessage());
+        }
 
         return ResponseEntity.ok("subscribe removed");
     }

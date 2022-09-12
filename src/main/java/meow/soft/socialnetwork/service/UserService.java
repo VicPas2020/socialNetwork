@@ -21,7 +21,7 @@ public class UserService {
 
 
     public User get(UUID userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException(String.format("User %s not found", userId)));
     }
 
 
