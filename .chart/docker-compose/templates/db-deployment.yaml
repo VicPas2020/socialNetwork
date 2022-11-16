@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -c
+    kompose.service.expose: "true"
+    kompose.service.type: nodeport
+    kompose.version: 1.26.1 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: db
+  name: db
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: db
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -c
+        kompose.service.expose: "true"
+        kompose.service.type: nodeport
+        kompose.version: 1.26.1 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: db
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: social_network
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: POSTGRES_USER
+              value: postgres
+          image: postgres:latest
+          name: db
+          ports:
+            - containerPort: 5432
+          resources: {}
+      restartPolicy: Always
+status: {}

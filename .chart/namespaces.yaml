@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: soc-network-dev
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: soc-network-feature
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: soc-network-test
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: soc-network-preprod
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: soc-network-prod
