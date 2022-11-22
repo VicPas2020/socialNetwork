@@ -1,0 +1,29 @@
+variables:
+  gradle_image: gradle:7.5.0-jdk11
+stages:          # List of stages for jobs, and their order of execution
+  - build
+  - test
+  - deploy
+
+build-job:
+  stage: build
+  image: ${gradle_image}
+  script:
+    - echo "Compiling the code..."
+    - gradle assemble
+    - echo "Compile complete."
+
+unit-test-job:
+  stage: test
+  image: ${gradle_image}
+  script: ≈
+    - echo "Running unit tests..."
+    - ${gradle_image}
+    - echo "Complete"
+
+deploy-job:      # This job runs in the deploy stage.
+  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+  environment: production
+  script:
+    - echo "Deploying application..."
+    - echo "Application successfully deployed."
