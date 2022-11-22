@@ -16,9 +16,9 @@ build-job:
 unit-test-job:
   stage: test
   image: ${gradle_image}
-  script: ≈
+  script:
     - echo "Running unit tests..."
-    - ${gradle_image}
+    - gradle check
     - echo "Complete"
 
 deploy-job:      # This job runs in the deploy stage.
