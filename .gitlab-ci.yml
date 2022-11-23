@@ -13,7 +13,10 @@ variables:
 stages:
   - build
   - test
-  - deploy
+  - pre-deploy
+  - deploy-dev
+  - deploy-feature
+  - deploy-pre-prod
 
 build-job:
   stage: build
@@ -31,9 +34,33 @@ unit-test-job:
     - gradle check
     - echo "Complete"
 
-deploy-job:      # This job runs in the deploy stage.
-  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
-  environment: production
+add-namespaces-job:
+  stage: pre-deploy
   script:
+    - cd .chart
+    - kubectl apply -f namespaces.yaml
+
+deploy-dev-job:
+  stage: deploy-dev
+  script:
+    - cd .chart
     - echo "Deploying application..."
+    - helm upgrade soc-network ./docker-compose --install --namespace soc-network-dev --values ./docker-compose/values.yaml --values ./docker-compose/values-soc-network-dev.yaml
     - echo "Application successfully deployed."
+
+deploy-feature-job:
+  stage: deploy-feature
+  script:
+    - cd .chart
+    - echo "Deploying application..."
+    - helm upgrade soc-network ./docker-compose --install --namespace soc-network-feature --values ./docker-compose/values.yaml --values ./docker-compose/values-soc-network-feature.yaml
+    - echo "Application successfully deployed."
+
+deploy-pre-prod-job:
+  stage: deploy-pre-prod
+  script:
+    - cd .chart
+    - echo "Deploying application..."
+    - helm upgrade soc-network ./docker-compose --install --namespace soc-network-preprod --values ./docker-compose/values.yaml --values ./docker-compose/values-soc-network-preprod.yaml
+    - echo "Application successfully deployed."
+
