@@ -42,7 +42,7 @@ sonar-job:
   image: ${gradle_image}
   cache:
       key: "${CI_JOB_NAME}"
-      path:
+      paths:
         - .sonar/cache
   script: gradle sonarqube
 
