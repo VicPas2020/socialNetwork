@@ -78,11 +78,11 @@ public class User extends SoftDelete {
     }
 
     public void addSubscriber(User user) {
-        subscribers.add(user);
+        getSubscribers().add(user);
     }
 
     public void removeSubscriber(User user) {
-        subscribers.remove(user);
+        getSubscribers().remove(user);
     }
 
     @Override

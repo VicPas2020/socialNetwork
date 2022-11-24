@@ -38,24 +38,26 @@ public class UserService {
         log.debug("Subscriber with id {} add to user {}", subscribeID, userId);
     }
 
-    public void removeSubscriber(UUID userId, UUID subscribeID) {
+    public boolean removeSubscriber(UUID userId, UUID subscribeID) {
         User user = get(userId);
         User subscriber = get(subscribeID);
         if (user.getSubscribers().stream().anyMatch(s -> s.getId().equals(subscribeID))) {
             user.removeSubscriber(subscriber);
             update(user);
             log.debug("Subscribe with id {} removed from user {}", subscribeID, userId);
+
+            return true;
         }
+        log.warn("Subscribe with id {} not found at user {}", subscribeID, userId);
+        return false;
     }
 
-    @Transactional
     public User update(User updated) {
         User dbDomain = get(updated.getId());
         dbDomain.update(updated);
         return userRepository.save(updated);
     }
 
-    @Transactional
     public User create(User user) {
         User newUser = user.createNewInstance();
         return userRepository.save(newUser);

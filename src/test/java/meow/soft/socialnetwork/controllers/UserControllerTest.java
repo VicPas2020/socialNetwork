@@ -1,5 +1,7 @@
 package meow.soft.socialnetwork.controllers;
 
+import meow.soft.socialnetwork.exceptions.CommonException;
+import meow.soft.socialnetwork.exceptions.NotFoundException;
 import meow.soft.socialnetwork.model.User;
 import meow.soft.socialnetwork.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,8 +14,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.UUID;
 
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
@@ -25,7 +26,6 @@ class UserControllerTest {
 
     @MockBean
     private UserService userService;
-
 
     UUID userId = UUID.randomUUID();
 
@@ -49,6 +49,18 @@ class UserControllerTest {
     }
 
     @Test
+    void testAddSubscribeOnItselc() throws Exception {
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/api/user/addSubscribe/")
+                .param("userId", userId.toString())
+                .param("subscribeId", userId.toString())
+                .contentType("application/json")
+        ).andExpect(status().isOk());
+
+    }
+
+    @Test
     void testRemoveSubscribe() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders
                 .post("/api/user/removeSubscribe/")
@@ -61,7 +73,7 @@ class UserControllerTest {
     @Test
     void testGetPage() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/user/")
+                .get("/api/user/" + userId)
                 .contentType("application/json")
         ).andExpect(status().isOk());
     }
@@ -77,10 +89,11 @@ class UserControllerTest {
     @Test
     void testUpdate() throws Exception {
         String content = "{\n" +
-                "    \"firstName\" : \"test2\"\n" +
+                "    \"firstName\" : \"test2\",\n" +
+                "    \"id\" : " + "\"" + userId.toString() + "\"\n" +
                 "}";
         mockMvc.perform(MockMvcRequestBuilders
-                .put("/api/user/")
+                .put("/api/user/" + userId)
                 .content(content)
                 .contentType("application/json")
         ).andExpect(status().isOk());
@@ -104,6 +117,41 @@ class UserControllerTest {
                 .delete("/api/user/" + userId)
                 .contentType("application/json")
         ).andExpect(status().isOk());
+    }
+
+    @Test
+    void testUserNotCreated() throws Exception {
+        doThrow(NotFoundException.class).when(userService).addSubscriber(any(), any());
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/api/user/addSubscribe/")
+                .param("userId", userId.toString())
+                .param("subscribeId", subscribeId.toString())
+                .contentType("application/json")
+        ).andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void testUserThrow500() throws Exception {
+        doThrow(CommonException.class).when(userService).addSubscriber(any(), any());
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/api/user/addSubscribe/")
+                .param("userId", userId.toString())
+                .param("subscribeId", subscribeId.toString())
+                .contentType("application/json")
+        ).andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    void testUpdateWithDifferentId() throws Exception {
+        String content = "{\n" +
+                "    \"firstName\" : \"test2\",\n" +
+                "    \"id\" : " + "\"" + UUID.randomUUID() + "\"\n" +
+                "}";
+        mockMvc.perform(MockMvcRequestBuilders
+                .put("/api/user/" + userId)
+                .content(content)
+                .contentType("application/json")
+        ).andExpect(status().is5xxServerError());
     }
 }
 

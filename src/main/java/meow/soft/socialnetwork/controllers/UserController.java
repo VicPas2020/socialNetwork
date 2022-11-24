@@ -9,12 +9,16 @@ import lombok.RequiredArgsConstructor;
 import meow.soft.socialnetwork.exceptions.CommonException;
 import meow.soft.socialnetwork.exceptions.NotFoundException;
 import meow.soft.socialnetwork.model.User;
+import meow.soft.socialnetwork.model.UserDto;
 import meow.soft.socialnetwork.service.UserService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @RestController
@@ -92,16 +96,26 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User updated",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = User.class))}),
+                            schema = @Schema(implementation = UserDto.class))}),
             @ApiResponse(responseCode = "400", description = "Invalid id supplied",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal error",
                     content = @Content)})
-    @PutMapping("")
-    public ResponseEntity<User> update(@RequestBody User updated) {
-        return ResponseEntity.ok(userService.update(updated));
+    @PutMapping(value = "/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<String> update(@PathVariable("id") UUID id, @RequestBody UserDto updated) {
+        if(!Objects.equals(id, updated.getId())){
+            return ResponseEntity.status(500).body("IDs don't match");
+        }
+        User existing = userService.get(id);
+        User user = new User();
+        BeanUtils.copyProperties(updated, user);
+        user.setSubscribers(existing.getSubscribers());
+        userService.update(user);
+
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Create new user")
@@ -114,8 +128,11 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Internal error",
                     content = @Content)})
     @PostMapping("")
-    public ResponseEntity<User> create(@RequestBody User created) {
-        return ResponseEntity.ok(userService.create(created));
+    public ResponseEntity<User> create(@RequestBody UserDto created) {
+        User user = new User();
+        BeanUtils.copyProperties(created, user);
+        User saved = userService.create(user);
+        return ResponseEntity.ok(saved);
     }
 
     @Operation(summary = "Delete user by id")

@@ -10,11 +10,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.slf4j.Logger;
 import org.springframework.data.domain.Page;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.*;
 
 import static org.mockito.Mockito.*;
 
@@ -40,18 +38,40 @@ class UserServiceTest {
 
     @Test
     void testAddSubscriber() {
-        Optional<User> mock = Optional.of(mock(User.class));
+        User userMock = mock(User.class);
+        Optional<User> mock = Optional.of(userMock);
         when(userRepository.findById(any())).thenReturn(mock);
+        doCallRealMethod().when(userMock).addSubscriber(any());
+        doReturn(new HashSet<User>()).when(userMock).getSubscribers();
 
         userService.addSubscriber(null, null);
+        Assertions.assertEquals(1, userMock.getSubscribers().size());
     }
 
     @Test
     void testRemoveSubscriber() {
+        User userMock = mock(User.class);
+        Optional<User> mock = Optional.of(userMock);
+        when(userRepository.findById(any())).thenReturn(mock);
+        doCallRealMethod().when(userMock).removeSubscriber(any());
+
+        UUID uuid = UUID.randomUUID();
+        User user = new User();
+        user.setId(uuid);
+
+        doReturn(new HashSet<>(List.of(user))).when(userMock).getSubscribers();
+
+        boolean removeSubscriber = userService.removeSubscriber(null, uuid);
+        Assertions.assertTrue(removeSubscriber);
+    }
+
+    @Test
+    void testRemoveSubscriberFailed() {
         Optional<User> mock = Optional.of(mock(User.class));
         when(userRepository.findById(any())).thenReturn(mock);
 
-        userService.removeSubscriber(null, null);
+        boolean removeSubscriber = userService.removeSubscriber(null, null);
+        Assertions.assertFalse(removeSubscriber);
     }
 
     @Test
@@ -75,9 +95,14 @@ class UserServiceTest {
     @Test
     void testDelete() {
         Optional<User> mock = Optional.of(mock(User.class));
-        when(userRepository.findById(any())).thenReturn(mock);
+        UUID uuid = UUID.randomUUID();
+        when(userRepository.findById(uuid)).thenReturn(mock);
+        doNothing().when(userRepository).cleanSubscribers(uuid);
+        doNothing().when(userRepository).deleteById(uuid);
+        userService.delete(uuid);
 
-        userService.delete(null);
+        verify(userRepository, times(1)).cleanSubscribers(uuid);
+        verify(userRepository, times(1)).deleteById(uuid);
     }
 
     @Test
@@ -85,7 +110,7 @@ class UserServiceTest {
         when(userRepository.findAll(any())).thenReturn(null);
 
         Page<User> result = userService.getPage(null);
-        Assertions.assertEquals(null, result);
+        Assertions.assertNull(result);
     }
 
     @Test

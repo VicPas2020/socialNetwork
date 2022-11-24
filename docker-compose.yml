@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: "postgres"
       POSTGRES_DB: "social_network"
   back:
-    image: social_network:1
+    image: social_network:latest
     build: .
     environment:
       - spring.datasource.url=jdbc:postgresql://db:5432/social_network
@@ -17,3 +17,25 @@ services:
       - "8080:8080"
     depends_on:
       - db
+
+  sonarqube:
+    image: davealdon/sonarqube-with-docker-and-m1-macs
+    expose:
+      - 9000
+    ports:
+      - "127.0.0.1:9000:9000"
+    environment:
+      - sonar.jdbc.url=jdbc:postgresql://db:5432/social_network
+      - sonar.jdbc.username=postgres
+      - sonar.jdbc.password=postgres
+    volumes:
+      - sonarqube_conf:/opt/sonarqube/conf
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_bundled-plugins:/opt/sonarqube/lib/bundled-plugins
+
+volumes:
+  sonarqube_conf:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_bundled-plugins:

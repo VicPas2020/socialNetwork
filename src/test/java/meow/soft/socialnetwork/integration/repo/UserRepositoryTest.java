@@ -33,12 +33,15 @@ class UserRepositoryTest {
     void testCleanSubscribers() {
         UUID child = UUID.fromString("bf0d7b78-9c84-4f16-8bab-b0f73c3e8e99");
         userRepository.cleanSubscribers(child);
+        Optional<User> byId = userRepository.findById(UUID.fromString("042119d0-fdd3-4f1b-ab35-7e33568a3494"));
+        Assertions.assertTrue(byId.isPresent());
+        Assertions.assertTrue(byId.get().getSubscribers().isEmpty());
     }
 
     @Test
     void testFindAll() {
         Page<User> all = userRepository.findAll(Pageable.unpaged());
-        Assertions.assertEquals(all.getTotalElements(), 3L);
+        Assertions.assertEquals(3L, all.getTotalElements());
     }
 }
 

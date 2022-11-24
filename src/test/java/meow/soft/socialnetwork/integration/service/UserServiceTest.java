@@ -1,5 +1,6 @@
 package meow.soft.socialnetwork.integration.service;
 
+import meow.soft.socialnetwork.exceptions.NotFoundException;
 import meow.soft.socialnetwork.model.User;
 import meow.soft.socialnetwork.service.UserService;
 import org.junit.jupiter.api.Assertions;
@@ -22,11 +23,14 @@ class UserServiceTest {
     UUID parent;
     UUID child;
 
+    UUID notSubscribed;
+
 
     @BeforeEach
     public void init() {
-        parent = UUID.fromString("bf0d7b78-9c84-4f16-8bab-b0f73c3e8e99");
-        child = UUID.fromString("042119d0-fdd3-4f1b-ab35-7e33568a3494");
+        child = UUID.fromString("bf0d7b78-9c84-4f16-8bab-b0f73c3e8e99");
+        parent = UUID.fromString("042119d0-fdd3-4f1b-ab35-7e33568a3494");
+        notSubscribed = UUID.fromString("a7b520b7-0195-4f32-ad2e-3eb40a5a645c");
     }
 
 
@@ -39,11 +43,20 @@ class UserServiceTest {
     @Test
     void testAddSubscriber() {
         userService.addSubscriber(parent, child);
+        boolean match = userService.get(parent).getSubscribers().stream().anyMatch(s -> s.getId().equals(child));
+        Assertions.assertTrue(match);
     }
 
     @Test
     void testRemoveSubscriber() {
-        userService.removeSubscriber(parent, child);
+        boolean removeSubscriber = userService.removeSubscriber(parent, child);
+        Assertions.assertTrue(removeSubscriber);
+    }
+
+    @Test
+    void testRemoveSubscriberFailed() {
+        boolean removeSubscriber = userService.removeSubscriber(parent, notSubscribed);
+        Assertions.assertFalse(removeSubscriber);
     }
 
     @Test
@@ -68,6 +81,7 @@ class UserServiceTest {
     @Test
     void testDelete() {
         userService.delete(child);
+        Assertions.assertThrowsExactly(NotFoundException.class, () -> userService.get(child));
     }
 
     @Test
