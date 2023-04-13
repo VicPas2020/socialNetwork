@@ -52,6 +52,7 @@ add-namespaces-job:
   stage: pre-deploy
   script:
     - cd .chart
+    - chmod +x C:\Program Files\Docker\Docker\resources\bin
     - kubectl apply -f namespaces.yaml
 
 deploy-dev-job:
